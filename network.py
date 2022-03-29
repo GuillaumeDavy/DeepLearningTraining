@@ -14,6 +14,7 @@ and omits many desirable features.
 
 import random
 import numpy as np
+import csv
 
 
 class Network(object):
@@ -41,8 +42,7 @@ class Network(object):
             a = sigmoid(np.dot(w, a) + b)
         return a
 
-    def SGD(self, training_data, epochs, mini_batch_size, eta,
-            test_data=None):
+    def SGD(self, training_data, epochs, mini_batch_size, eta, test_data=None):
         """Train the neural network using mini-batch stochastic
         gradient descent.  The ``training_data`` is a list of tuples
         ``(x, y)`` representing the training inputs and the desired
@@ -53,23 +53,33 @@ class Network(object):
         tracking progress, but slows things down substantially."""
 
         training_data = list(training_data)
-        n = len(training_data)
+        n_training = len(training_data)
 
         if test_data:
             test_data = list(test_data)
             n_test = len(test_data)
 
-        for j in range(epochs):
-            random.shuffle(training_data)
-            mini_batches = [
-                training_data[k:k + mini_batch_size]
-                for k in range(0, n, mini_batch_size)]
-            for mini_batch in mini_batches:
-                self.update_mini_batch(mini_batch, eta)
-            if test_data:
-                print("Epoch {} : {} / {}".format(j, self.evaluate(test_data), n_test))
-            else:
-                print("Epoch {} complete".format(j))
+        # open the file in the write mode
+        with open('result.csv', 'w') as f:
+            # create the csv writer
+            writer = csv.writer(f)
+            # write the header
+            writer.writerow(['epoch', 'nb_training_success', 'nb_training_total_data', 'nb_test_success', 'nb_test_total_data'])
+
+            for j in range(epochs):
+                random.shuffle(training_data)
+                mini_batches = [
+                    training_data[k:k + mini_batch_size]
+                    for k in range(0, n_training, mini_batch_size)]
+                for mini_batch in mini_batches:
+                    self.update_mini_batch(mini_batch, eta)
+                if test_data:
+                    # write a row to the csv file
+                    row = [j, self.evaluate(test_data), n_training, self.evaluate(test_data), n_test]
+                    writer.writerow(row)
+                    print("Epoch {} : {} / {}".format(j, self.evaluate(test_data), n_test))
+                else:
+                    print("Epoch {} complete".format(j))
 
     def update_mini_batch(self, mini_batch, eta):
         """Update the network's weights and biases by applying
@@ -120,7 +130,7 @@ class Network(object):
             delta = np.dot(self.weights[-l + 1].transpose(), delta) * sp
             nabla_b[-l] = delta
             nabla_w[-l] = np.dot(delta, activations[-l - 1].transpose())
-        return (nabla_b, nabla_w)
+        return nabla_b, nabla_w
 
     def evaluate(self, test_data):
         """Return the number of test inputs for which the neural
@@ -134,7 +144,7 @@ class Network(object):
     def cost_derivative(self, output_activations, y):
         """Return the vector of partial derivatives \partial C_x /
         \partial a for the output activations."""
-        return (output_activations - y)
+        return output_activations - y
 
 
 def sigmoid(z):
