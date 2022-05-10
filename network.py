@@ -64,7 +64,7 @@ class Network(object):
             # create the csv writer
             writer = csv.writer(f)
             # write the header
-            writer.writerow(['epoch', 'nb_training_success', 'nb_training_total_data', 'nb_test_success', 'nb_test_total_data'])
+            writer.writerow(['epoch', 'nb_test_success_rate'])
 
             for j in range(epochs):
                 random.shuffle(training_data)
@@ -75,9 +75,11 @@ class Network(object):
                     self.update_mini_batch(mini_batch, eta)
                 if test_data:
                     # write a row to the csv file
-                    row = [j, self.evaluate(test_data), n_training, self.evaluate(test_data), n_test]
+                    result = self.evaluate(test_data)
+                    success_rate = (result / n_test) * 100
+                    row = [j, success_rate]
                     writer.writerow(row)
-                    print("Epoch {} : {} / {}".format(j, self.evaluate(test_data), n_test))
+                    print("Epoch {} : {}%".format(j, success_rate))
                 else:
                     print("Epoch {} complete".format(j))
 
