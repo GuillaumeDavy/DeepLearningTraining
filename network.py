@@ -60,25 +60,29 @@ class Network(object):
             n_test = len(test_data)
 
         # open the file in the write mode
-        with open('result.csv', 'w') as f:
+        with open('result_MNIST.csv', 'w') as f:
             # create the csv writer
             writer = csv.writer(f)
             # write the header
             writer.writerow(['epoch', 'nb_test_success_rate'])
 
             for j in range(epochs):
+                # shuffle the training data
                 random.shuffle(training_data)
+                # split the training data into mini batches
                 mini_batches = [
                     training_data[k:k + mini_batch_size]
                     for k in range(0, n_training, mini_batch_size)]
                 for mini_batch in mini_batches:
+                    # update the network
                     self.update_mini_batch(mini_batch, eta)
                 if test_data:
-                    # write a row to the csv file
-                    result = self.evaluate(test_data)
-                    success_rate = (result / n_test) * 100
-                    row = [j, success_rate]
-                    writer.writerow(row)
+                    # compute the success rate
+                    nb_test_success = self.evaluate(test_data)
+                    success_rate = (nb_test_success / n_test) * 100
+
+                    # write the result to the file
+                    writer.writerow([j, success_rate])
                     print("Epoch {} : {}%".format(j, success_rate))
                 else:
                     print("Epoch {} complete".format(j))
