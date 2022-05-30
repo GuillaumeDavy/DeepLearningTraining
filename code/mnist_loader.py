@@ -1,4 +1,3 @@
-# %load mnist_loader.py
 """
 mnist_loader
 ~~~~~~~~~~~~
@@ -8,8 +7,12 @@ and ``load_data_wrapper``.  In practice, ``load_data_wrapper`` is the
 function usually called by our neural network code.
 """
 
+# Libraries
+# Standard library
 import pickle
 import gzip
+
+# Third-party libraries
 import numpy as np
 
 
@@ -32,7 +35,7 @@ def load_data():
     That's done in the wrapper function ``load_data_wrapper()``, see
     below.
     """
-    f = gzip.open('mnist.pkl.gz', 'rb')
+    f = gzip.open('./data/mnist.pkl.gz', 'rb')
     training_data, validation_data, test_data = pickle.load(f, encoding="latin1")
     f.close()
     return training_data, validation_data, test_data
@@ -49,7 +52,7 @@ def load_data_wrapper():
     correct digit for ``x``.
     ``validation_data`` and ``test_data`` are lists containing 10,000
     2-tuples ``(x, y)``.  In each case, ``x`` is a 784-dimensional
-    numpy.ndarry containing the input image, and ``y`` is the
+    numpy.ndarray containing the input image, and ``y`` is the
     corresponding classification, i.e., the digit values (integers)
     corresponding to ``x``.
     Obviously, this means we're using slightly different formats for
